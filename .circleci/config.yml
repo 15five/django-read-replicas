@@ -1,0 +1,88 @@
+version: 2.1
+
+.python-postgres: &python-postgres
+  docker:
+    - image: circleci/python:3.6-node
+
+    - image: 15five/postgres.master
+      name: db.master
+      environment:
+        POSTGRES_USER: "ci"
+        POSTGRES_DB: "app"
+        PGDATA: "/dev/shm/pgdata1/data"
+
+    - image: 15five/postgres.mirror
+      name: db.mirror1
+      environment:
+        POSTGRES_USER: "ci"
+        POSTGRES_DB: "app"
+        PGDATA: "/dev/shm/pgdata2/data"
+        MASTER_HOST: db.master
+
+  environment:
+    DJANGO_SETTINGS_MODULE: "django_mirrors.settings"
+    PGUSER: "ci"
+    PGDATABASE: "app"
+    PGPASSWORD: "pass"
+    PGHOST: db.master
+    PGHOST_MIRROR_1: db.mirror1
+
+
+jobs:
+  build:
+    docker:
+      - image: circleci/python:3.6-node
+
+    environment:
+      DJANGO_SETTINGS_MODULE: "django_mirrors.settings"
+
+    steps:
+
+      - checkout
+
+      - restore_cache:
+          keys:
+            - python-venv-{{ checksum "requirements.txt" }}
+            # if first doesnt hit cache we want to restore last existing cache
+            - python-venv
+
+      - run:
+          name: Create Virtual Environment
+          command: python3 -m venv venv
+
+      - run:
+          name: Update pip
+          command: venv/bin/pip install -U pip
+
+      - run:
+          name: Install Dependencies
+          command: venv/bin/pip install --exists-action=i -r requirements.txt
+
+      - save_cache:
+          paths:
+            - venv
+          key: python-venv-{{ checksum "requirements.txt" }}
+
+      - persist_to_workspace:
+          root: /home/circleci
+          paths:
+            - project
+
+  python-test:
+    <<: *python-postgres
+
+    steps:
+      - attach_workspace:
+          at: /home/circleci
+
+      - run: python manage.py test --noinput --verbosity 2
+
+
+workflows:
+  version: 2
+  build-and-test-pr:
+    jobs:
+      - build
+      - python-test:
+          requires:
+            - build
