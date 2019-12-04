@@ -29,12 +29,8 @@ version: 2.1
 
 
 jobs:
-  build:
-    docker:
-      - image: circleci/python:3.6-node
-
-    environment:
-      DJANGO_SETTINGS_MODULE: "django_mirrors.settings"
+  test:
+    <<: *python-postgres
 
     steps:
 
@@ -63,26 +59,11 @@ jobs:
             - venv
           key: python-venv-{{ checksum "requirements.txt" }}
 
-      - persist_to_workspace:
-          root: /home/circleci
-          paths:
-            - project
-
-  python-test:
-    <<: *python-postgres
-
-    steps:
-      - attach_workspace:
-          at: /home/circleci
-
       - run: python manage.py test --noinput --verbosity 2
 
 
 workflows:
   version: 2
-  build-and-test-pr:
+  test:
     jobs:
-      - build
-      - python-test:
-          requires:
-            - build
+      - test
