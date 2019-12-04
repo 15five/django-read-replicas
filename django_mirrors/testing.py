@@ -1,6 +1,6 @@
 from django.test.runner import DiscoverRunner
 
-from uitls import db
+from utils import db
 
 
 class DiscoverRunnerWithReplicas(DiscoverRunner):

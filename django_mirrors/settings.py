@@ -83,7 +83,7 @@ DATABASES = {
         'USER': os.environ.get('PGUSER'),
         'PASSWORD': os.environ.get('PGPASSWORD'),
         'HOST': os.environ.get('PGHOST'),
-        'PORT': 5432,
+       'PORT': 5432,
     },
 
     DB_ALIAS_MIRROR_1: {
@@ -98,6 +98,9 @@ DATABASES = {
         }
     }
 }
+
+print('Printing DATABASES for debugging purposes')
+print(DATABASES)
 
 DATABASE_ROUTERS = ['utils.db.MasterMirrorRouter']
 
