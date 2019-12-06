@@ -66,6 +66,8 @@ jobs:
             - venv
           key: python-venv-{{ checksum "requirements.txt" }}
 
+      - run: venv/bin/python manage.py migrate
+
       - run: venv/bin/python manage.py test --noinput --verbosity 2
 
 
