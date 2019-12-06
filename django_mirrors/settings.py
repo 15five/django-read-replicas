@@ -84,6 +84,9 @@ DATABASES = {
         'PASSWORD': os.environ.get('PGPASSWORD'),
         'HOST': os.environ.get('PGHOST'),
         'PORT': int(os.environ.get('PGPORT') or 5432),
+        # Need autocommit so mirror can see actions of master.
+        # Otherwise, master actions are inside a transaction.
+        'AUTOCOMMIT': True,
     },
 
     DB_ALIAS_MIRROR_1: {

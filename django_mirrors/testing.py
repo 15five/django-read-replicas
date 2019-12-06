@@ -10,6 +10,34 @@ class DiscoverRunnerWithReplicas(DiscoverRunner):
         with db.ForceDBReadsFromMaster():
             return super().setup_databases(*args, **kwargs)
 
+    def teardown_databases(self, old_config, **kwargs):
+        from django.db import connections
+        for alias in connections:
+            if connections[alias].settings_dict['TEST'].get('REAL_MIRROR'):
+                connections[alias].close()
+        super().teardown_databases(old_config, **kwargs)
+
+
+def patch_db_wrapper():
+    from django.db import DEFAULT_DB_ALIAS, connections
+    from django.db.backends.postgresql import base
+    from django.db.backends.base.creation import TEST_DATABASE_PREFIX
+
+    class DatabaseWrapper(base.DatabaseWrapper):
+        def get_connection_params(self):
+            settings_dict = self.settings_dict
+            test_db_name = TEST_DATABASE_PREFIX + self.settings_dict['NAME']
+            is_same_db = connections[DEFAULT_DB_ALIAS].settings_dict['NAME'] == test_db_name
+            if self.settings_dict['TEST'].get('REAL_MIRROR') and is_same_db:
+                settings_dict['NAME'] = test_db_name
+
+            return super().get_connection_params()
+
+    base.DatabaseWrapper = DatabaseWrapper
+
+
+patch_db_wrapper()
+
 
 def patch_get_unique_databases_and_mirrors():
     import collections
@@ -40,6 +68,7 @@ def patch_get_unique_databases_and_mirrors():
 
         for alias in connections:
             connection = connections[alias]
+
             test_settings = connection.settings_dict['TEST']
 
             if test_settings.get('REAL_MIRROR'):
