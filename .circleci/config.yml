@@ -37,6 +37,10 @@ jobs:
           name: Install Utils
           command: sudo apt-get install less vim
 
+      - run:
+          name: Install pgcli
+          command: sudo apt-get install libpq-dev python-dev && sudo pip install pgcli
+
       - checkout
 
       - restore_cache:
