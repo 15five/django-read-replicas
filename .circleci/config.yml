@@ -33,6 +33,9 @@ jobs:
     <<: *python-postgres
 
     steps:
+      - run:
+          name: Install Utils
+          command: sudo apt-get install less vim
 
       - checkout
 

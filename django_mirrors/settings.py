@@ -83,7 +83,7 @@ DATABASES = {
         'USER': os.environ.get('PGUSER'),
         'PASSWORD': os.environ.get('PGPASSWORD'),
         'HOST': os.environ.get('PGHOST'),
-       'PORT': 5432,
+        'PORT': int(os.environ.get('PGPORT') or 5432),
     },
 
     DB_ALIAS_MIRROR_1: {
@@ -92,7 +92,7 @@ DATABASES = {
         'USER': os.environ.get('PGUSER'),
         'PASSWORD': os.environ.get('PGPASSWORD'),
         'HOST': os.environ.get('PGHOST_MIRROR_1'),
-        'PORT': 5432,
+        'PORT': int(os.environ.get('PGPORT_MIRROR_1') or 5432),
         'TEST': {
             'REAL_MIRROR': True,
         }
