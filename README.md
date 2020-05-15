@@ -10,28 +10,19 @@ The repo has a few parts:
 - Django Project: Demo of a project configured to use the utils mentioned above
 - Django application: An application with tests that fail if there is too long of a replica lag
 
+To get things running, follow these steps:
 
-The project defines some environment variables that are used to connect to the databases.
-If these are not defined in the runtime environment of the project, defaults are used. Please note,
-that the docker containers will also need to be rebuilt if the username/password credentials change.
+1. docker-compose up -d
+2. docker exec -it django-read-replicas_master_1 /delay.sh
+3. python manage.py test
 
-PGDATABASE
+If you need to specify varying levels of delay, pass a number of 
+milliseconds of delay to the delay.sh script in the master container.
+3000 is the default.
 
-PGUSER
-PGPASSWORD
+    docker exec -it django-read-replicas_master_1 /delay.sh 5000
 
-PGHOST
-PGPORT
+### Troubleshooting
 
-PGHOST_REPLICA_1
-PGPORT_REPLICA_1
-
-
-
-
-TODO:
-
-
-
-Update https://github.com/15five/postgres.master - delay.sh
-
+If you need to test that replication lag is in fact present,
+try the time-test.sh script in the root of this repo.
