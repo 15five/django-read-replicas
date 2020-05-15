@@ -11,7 +11,7 @@ THREAD_LOCAL = threading.local()
 class ForceDBReadsFromMaster:
     """
     A singleton to keep track of whether reads should be made from the
-    master or mirror database.
+    master or replica database.
 
     We use a "depth" key in this singleton so that calls to "force reads
     from master" from within deeper code do not effect prior calls to
@@ -58,10 +58,10 @@ class ForceDBReadsFromMaster:
         return bool(cls.get_depth())
 
 
-class MasterMirrorRouter:
+class MasterReplicaRouter:
 
     def db_for_read(self, model, **hints):
-        return settings.DB_ALIAS_MIRROR_1
+        return settings.DB_ALIAS_REPLICA_1
 
     def db_for_write(self, model, **hints):
         # all writes should be sent to master db

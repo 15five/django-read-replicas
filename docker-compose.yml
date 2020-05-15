@@ -1,0 +1,23 @@
+version: '3.2'
+services:
+    master:
+        build: docker/master
+        ports:
+            - "5432:5432"
+        cap_add:
+            - NET_ADMIN
+        volumes:
+            - ./docker/init.sql:/docker-entrypoint-initdb.d/init.sql
+        environment:
+            POSTGRES_PASSWORD: 123456
+
+    replica1:
+        build: docker/replica
+        ports:
+            - "5433:5432"
+        cap_add:
+            - NET_ADMIN
+        links:
+            - master
+        depends_on:
+            - master

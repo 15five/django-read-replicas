@@ -17,10 +17,10 @@ class ReplicaLagTestCase(SimpleTestCase):
         result = Item.objects.using(settings.DB_ALIAS_MASTER).filter(id=i.id).first()
         self.assertIsNotNone(result)
 
-        result = Item.objects.using(settings.DB_ALIAS_MIRROR_1).filter(id=i.id).first()
+        result = Item.objects.using(settings.DB_ALIAS_REPLICA_1).filter(id=i.id).first()
         self.assertIsNone(result)
 
         time.sleep(2)
 
-        result = Item.objects.using(settings.DB_ALIAS_MIRROR_1).filter(id=i.id).first()
+        result = Item.objects.using(settings.DB_ALIAS_REPLICA_1).filter(id=i.id).first()
         self.assertIsNotNone(result)

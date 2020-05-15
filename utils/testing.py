@@ -1,9 +1,9 @@
 from django.test.runner import DiscoverRunner
 
-from utils import db
+from . import db
 
 
-class DiscoverRunnerWithReplicas(DiscoverRunner):
+class DiscoverRunnerWithReadReplicas(DiscoverRunner):
     def setup_databases(self, *args, **kwargs):
         # Let's force reads from master while setting up the databases
         # so that we don't have to re-write migrations.
@@ -13,7 +13,7 @@ class DiscoverRunnerWithReplicas(DiscoverRunner):
     def teardown_databases(self, old_config, **kwargs):
         from django.db import connections
         for alias in connections:
-            if connections[alias].settings_dict['TEST'].get('REAL_MIRROR'):
+            if connections[alias].settings_dict['TEST'].get('REPLICA'):
                 connections[alias].close()
         super().teardown_databases(old_config, **kwargs)
 
@@ -28,7 +28,7 @@ def patch_db_wrapper():
             settings_dict = self.settings_dict
             test_db_name = TEST_DATABASE_PREFIX + self.settings_dict['NAME']
             is_same_db = connections[DEFAULT_DB_ALIAS].settings_dict['NAME'] == test_db_name
-            if self.settings_dict['TEST'].get('REAL_MIRROR') and is_same_db:
+            if self.settings_dict['TEST'].get('REPLICA') and is_same_db:
                 settings_dict['NAME'] = test_db_name
 
             return super().get_connection_params()
@@ -46,13 +46,12 @@ def patch_get_unique_databases_and_mirrors():
     # need to create patch get_unique_databases_and_mirrors in utils
     from django.test import utils
 
-
     def get_unique_databases_and_mirrors(aliases=None):
         """
         Figure out which databases actually need to be created.
 
         De-duplicate entries in DATABASES that correspond the same database or are
-        configured as test mirrors.
+        configured as replicas.
 
         Return two values:
         - test_databases: ordered mapping of signatures to (name, list of aliases)
@@ -71,8 +70,8 @@ def patch_get_unique_databases_and_mirrors():
 
             test_settings = connection.settings_dict['TEST']
 
-            if test_settings.get('REAL_MIRROR'):
-                # If the replica is marked as a "real mirror", assume that the
+            if test_settings.get('REPLICA'):
+                # If the connection is marked as a replica, assume that the
                 # mirroring logic will be handled at the database layer.
                 pass
             elif test_settings['MIRROR']:
@@ -99,5 +98,6 @@ def patch_get_unique_databases_and_mirrors():
         return test_databases, mirrored_aliases
 
     utils.get_unique_databases_and_mirrors = get_unique_databases_and_mirrors
+
 
 patch_get_unique_databases_and_mirrors()
