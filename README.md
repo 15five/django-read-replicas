@@ -6,15 +6,15 @@ replica databases in cloud infrastructure (or elsewhere).
 The repo has a few parts:
 
 - docker-compose.yaml: Creates the Postgres Master and Read Replica
-- replica utils: A directory that holds the logic required to allow Django to utilize the replica in tests
+- Replica utils/ directory: A directory that holds the logic required to allow Django to utilize the replica in tests
 - Django Project: Demo of a project configured to use the utils mentioned above
 - Django application: An application with tests that fail if there is too long of a replica lag
 
 To get things running, follow these steps:
 
-1. docker-compose up -d
-2. docker exec -it django-read-replicas_master_1 /delay.sh
-3. python manage.py test
+1. `$ docker-compose up -d`
+2. `$ docker exec -it django-read-replicas_master_1 /delay.sh`
+3. `$ python manage.py test`
 
 If you need to specify varying levels of delay, pass a number of 
 milliseconds of delay to the delay.sh script in the master container.
