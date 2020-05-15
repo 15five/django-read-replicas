@@ -31,25 +31,27 @@ try the time-test.sh script in the root of this repo.
 
 1. Explain project settings:
 
-    DATABASES[DB_ALIAS_MASTER]['AUTOCOMMIT'] = True
+```python
+DATABASES[DB_ALIAS_MASTER]['AUTOCOMMIT'] = True
 
-    DB_ALIAS_REPLICA_1 = 'replica1'
-    DATABASES[DB_ALIAS_REPLICA_1] = {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': os.environ.get('PGDATABASE') or 'drr',
-        'USER': os.environ.get('PGUSER') or 'drr_user',
-        'PASSWORD': os.environ.get('PGPASSWORD') or 'pass',
-        'HOST': os.environ.get('PGHOST_REPLICA_1') or 'localhost',
-        'PORT': int(os.environ.get('PGPORT_REPLICA_1') or 5433),
-        'TEST': {
-            # Non-standard Django DATABASES > TEST key for use in DRR
-            'REPLICA': True,
-        }
+DB_ALIAS_REPLICA_1 = 'replica1'
+DATABASES[DB_ALIAS_REPLICA_1] = {
+    'ENGINE': 'django.db.backends.postgresql_psycopg2',
+    'NAME': os.environ.get('PGDATABASE') or 'drr',
+    'USER': os.environ.get('PGUSER') or 'drr_user',
+    'PASSWORD': os.environ.get('PGPASSWORD') or 'pass',
+    'HOST': os.environ.get('PGHOST_REPLICA_1') or 'localhost',
+    'PORT': int(os.environ.get('PGPORT_REPLICA_1') or 5433),
+    'TEST': {
+        # Non-standard Django DATABASES > TEST key for use in DRR
+        'REPLICA': True,
     }
+}
 
-    DATABASE_ROUTERS = ['replicas.db.MasterReplicaRouter']
+DATABASE_ROUTERS = ['replicas.db.MasterReplicaRouter']
 
-    TEST_RUNNER = 'replicas.test.DiscoverRunnerWithReadReplicas'
+TEST_RUNNER = 'replicas.test.DiscoverRunnerWithReadReplicas'
+```
 
 2. Explain how to setup a test like the one in app/tests.py. Ie. Explain what the db_wait method does and why.
 3. Package project for installation from PyPI.
