@@ -8,7 +8,7 @@ The repo has a few parts:
 - docker-compose.yaml: Creates the Postgres Master and Read Replica
 - Replica utils/ directory: A directory that holds the logic required to allow Django to utilize the replica in tests
 - Django Project: Demo of a project configured to use the utils mentioned above
-- Django application: An application with tests that fail if there is too long of a replica lag
+- Django application: An application with tests that test for an expected level of delay
 
 To get things running, follow these steps:
 
