@@ -1,23 +1,3 @@
-from django.test.runner import DiscoverRunner
-
-from . import db
-
-
-class DiscoverRunnerWithReadReplicas(DiscoverRunner):
-    def setup_databases(self, *args, **kwargs):
-        # Let's force reads from master while setting up the databases
-        # so that we don't have to re-write migrations.
-        with db.ForceDBReadsFromMaster():
-            return super().setup_databases(*args, **kwargs)
-
-    def teardown_databases(self, old_config, **kwargs):
-        from django.db import connections
-        for alias in connections:
-            if connections[alias].settings_dict['TEST'].get('REPLICA'):
-                connections[alias].close()
-        super().teardown_databases(old_config, **kwargs)
-
-
 def patch_db_wrapper():
     from django.db import DEFAULT_DB_ALIAS, connections
     from django.db.backends.postgresql import base

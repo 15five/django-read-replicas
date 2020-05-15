@@ -123,9 +123,9 @@ DATABASES[DB_ALIAS_REPLICA_1] = {
     }
 }
 
-DATABASE_ROUTERS = ['utils.db.MasterReplicaRouter']
+DATABASE_ROUTERS = ['replicas.db.MasterReplicaRouter']
 
-TEST_RUNNER = 'utils.testing.DiscoverRunnerWithReadReplicas'
+TEST_RUNNER = 'replicas.test.DiscoverRunnerWithReadReplicas'
 
 print('Printing DATABASES for debugging purposes')
 print(DATABASES)

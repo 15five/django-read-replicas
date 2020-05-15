@@ -1,38 +1,17 @@
 import time
 
-from django.test import SimpleTestCase
 from django.conf import settings
+
+from replicas.test import ReplicaLagTestCase
 
 from .models import Item
 
 
-class ReplicaLagTestCase(SimpleTestCase):
-    databases = '__all__'
-
-    def db_wait(self):
-        print('Waiting for master', end='', flush=True)
-        while True:
-            try:
-                Item.objects.using(settings.DB_ALIAS_MASTER).filter(id=0).first()
-                print(' done', flush=True)
-                break
-            except Exception:
-                time.sleep(1)
-                print('.', end='', flush=True)
-
-        print('Waiting for replica', end='', flush=True)
-        while True:
-            try:
-                Item.objects.using(settings.DB_ALIAS_REPLICA_1).filter(id=0).first()
-                print(' done', flush=True)
-                break
-            except Exception:
-                time.sleep(1)
-                print('.', end='', flush=True)
+class ItemTestCase(ReplicaLagTestCase):
+    def setUp(self):
+        self.db_wait(Item)
 
     def test_replica_lag_item_not_immediatley_present(self):
-        self.db_wait()
-
         i = Item.objects.create(
             name='Thing',
         )
